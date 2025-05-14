@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Profiles collection
+    match /profiles/{userId} {
+      // "Public profiles are viewable by everyone"
+      allow read: if true;
+      
+      // "Users can insert their own profile"
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // "Users can update own profile"
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Delete is not allowed (no policy was defined for delete in the original SQL)
+      allow delete: if false;
+    }
+  }
+} 
